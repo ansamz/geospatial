@@ -177,7 +177,7 @@ counts_per_fam_2 = counts_per_fam_2.sort_values('date', ascending=True)
 counts_per_fam_2['date'] = counts_per_fam_2['date'].dt.strftime('%m-%d-%Y')
 
 df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','date','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
-df_filtered_gr2 = counts_per_fam_2.sort_values(by=['data','stateProvince','species'], ascending=True)
+df_filtered_gr2 = counts_per_fam_2.sort_values(by=['date','stateProvince','species'], ascending=True)
 
 fig4 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
                     color='Temperature', hover_data=['stateProvince'],
