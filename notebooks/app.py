@@ -226,16 +226,17 @@ st.plotly_chart(fig4)
 
 st.markdown("<h4 style='text-align: center; color: black;'>Explore the effects of Geographical Landscape on the spider families previously selected</h4>", unsafe_allow_html=True)
 
-fig6 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
-                    color='Landscape', hover_data=['Temperature', 'Precipitation', 'occurrenceStatus', 'stateProvince'],
-                    animation_frame = 'Year',
-                    featureidkey="properties.kan_name",
-                    center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
-                    mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
-                    title='Spider Biodiversity in Switzerland',
-                    labels={"stateProvince":"Canton",
-                           "occurrenceStatus":"Number of spiders present"})
+st.write('Soon')
+# fig6 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
+#                     color='Landscape', hover_data=['Temperature', 'Precipitation', 'occurrenceStatus', 'stateProvince'],
+#                     animation_frame = 'Year',
+#                     featureidkey="properties.kan_name",
+#                     center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
+#                     mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
+#                     title='Spider Biodiversity in Switzerland',
+#                     labels={"stateProvince":"Canton",
+#                            "occurrenceStatus":"Number of spiders present"})
 
-fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
+# fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
 
-st.plotly_chart(fig6)
+# st.plotly_chart(fig6)
