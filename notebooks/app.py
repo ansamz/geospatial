@@ -92,7 +92,6 @@ with st.sidebar:
 df_filtered_gr = data.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
 df_filtered_gr = data.sort_values(by=['Year','stateProvince','species'], ascending=True)
 
-st.write('done')
 fig = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProvince',
                     color='occurrenceStatus', hover_data=['Temperature', 'Precipitation', 'stateProvince'],
                     animation_frame = 'Year',
@@ -179,7 +178,7 @@ temp_per = st.radio(
     "Which efffect would you like to explore?",
     ("Temperature", "Precipitation"))
 
-years_slider = age = st.slider('How old are you?', 1980, 2020, 1990)
+years_slider = age = st.slider('Which years would you like to explore?', 1980, 2020, 1985)
 
 counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] < years_slider]
 counts_per_fam_2['date'] = pd.to_datetime(counts_per_fam_2[['Year', 'Month']].assign(DAY=1))
@@ -201,7 +200,7 @@ fig4 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='statePr
                     color_discrete_sequence="RdBu")
 
 fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
-st.write('finished')
+
 fig5 = px.scatter_mapbox(df_filtered_gr2, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
                         color="occurrenceStatus", animation_frame = 'date',
                         color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
@@ -210,7 +209,7 @@ fig5 = px.scatter_mapbox(df_filtered_gr2, lat="decimalLatitude", lon="decimalLon
                                "occurrenceStatus":"Number of spiders present"},
                         center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
                         mapbox_style="carto-positron")
-st.write('finished')
+
 fig4.add_trace(fig5.data[0])
 for i,frame in enumerate(fig4.frames):
     fig4.frames[i].data += (fig5.frames[i].data[0],)
