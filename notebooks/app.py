@@ -89,36 +89,36 @@ with st.sidebar:
 
 # Spiders biodiversity swiss cantons
 
-# df_filtered_gr = data.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
-# df_filtered_gr = data.sort_values(by=['Year','stateProvince','species'], ascending=True)
+df_filtered_gr = data.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
+df_filtered_gr = data.sort_values(by=['Year','stateProvince','species'], ascending=True)
 
-# st.write('done')
-# fig = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProvince',
-#                     color='occurrenceStatus', hover_data=['Temperature', 'Precipitation', 'stateProvince'],
-#                     animation_frame = 'Year',
-#                     featureidkey="properties.kan_name",
-#                     center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
-#                     mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
-#                     title='Spider Biodiversity in Switzerland',
-#                     labels={"stateProvince":"Canton",
-#                            "occurrenceStatus":"Number of spiders present"},
-#                     color_continuous_scale="Viridis")
-# fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
+st.write('done')
+fig = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProvince',
+                    color='occurrenceStatus', hover_data=['Temperature', 'Precipitation', 'stateProvince'],
+                    animation_frame = 'Year',
+                    featureidkey="properties.kan_name",
+                    center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
+                    mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
+                    title='Spider Biodiversity in Switzerland',
+                    labels={"stateProvince":"Canton",
+                           "occurrenceStatus":"Number of spiders present"},
+                    color_continuous_scale="Viridis")
+fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
 
-# fig2 = px.scatter_mapbox(df_filtered_gr, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
-#                         color="occurrenceStatus", animation_frame = 'Year',
-#                         color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
-#                         title='Spider Biodiversity in Switzerland',
-#                         labels={"stateProvince":"Canton",
-#                                "occurrenceStatus":"Number of spiders present"},
-#                         center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
-#                         mapbox_style="carto-positron")
+fig2 = px.scatter_mapbox(df_filtered_gr, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
+                        color="occurrenceStatus", animation_frame = 'Year',
+                        color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
+                        title='Spider Biodiversity in Switzerland',
+                        labels={"stateProvince":"Canton",
+                               "occurrenceStatus":"Number of spiders present"},
+                        center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
+                        mapbox_style="carto-positron")
 
-# fig.add_trace(fig2.data[0])
-# for i,frame in enumerate(fig.frames):
-#     fig.frames[i].data += (fig2.frames[i].data[0],)
+fig.add_trace(fig2.data[0])
+for i,frame in enumerate(fig.frames):
+    fig.frames[i].data += (fig2.frames[i].data[0],)
 
-# st.plotly_chart(fig)
+st.plotly_chart(fig)
 
 
 # choose which spider family you would like to explore
@@ -170,8 +170,18 @@ fig3.update_layout(margin={"r":0,"t":35,"l":0,"b":0},
 
 st.plotly_chart(fig3)
 
+
 # Temperature and Per and Spiders's number
 counts_per_fam_2 = counts_per_fam.copy(deep=True)
+
+temp_per = "Temperature"
+temp_per = st.radio(
+    "Which efffect would you like to explore?",
+    ("Temperature", "Precipitation"))
+
+years_slider = age = st.slider('How old are you?', 1980, 2020, 1990)
+
+counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] < years_slider]
 counts_per_fam_2['date'] = pd.to_datetime(counts_per_fam_2[['Year', 'Month']].assign(DAY=1))
 counts_per_fam_2 = counts_per_fam_2.sort_values('date', ascending=True)
 counts_per_fam_2['date'] = counts_per_fam_2['date'].dt.strftime('%m-%d-%Y')
@@ -180,7 +190,7 @@ df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','date','d
 df_filtered_gr2 = counts_per_fam_2.sort_values(by=['date','stateProvince','species'], ascending=True)
 
 fig4 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
-                    color='Temperature', hover_data=['stateProvince'],
+                    color=temp_per, hover_data=['stateProvince'],
                     animation_frame = 'date',
                     featureidkey="properties.kan_name",
                     center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
