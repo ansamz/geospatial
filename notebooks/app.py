@@ -180,15 +180,15 @@ temp_per = st.radio(
     "Which effect would you like to explore?",
     ("Temperature", "Precipitation"))
 
-years_option = st.selectbox(
-    'In which year?',
-    counts_per_fam_2.Year.unique())
+# years_option = st.selectbox(
+#     'In which year?',
+#     sorted(counts_per_fam_2.Year.unique()))
 
-counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] == years_option]
-counts_per_fam_2 = counts_per_fam_2.sort_values('Month', ascending=True)
+#counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] == years_option]
+counts_per_fam_2 = counts_per_fam_2.sort_values('Year', ascending=True)
 
-#df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','date','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
-#df_filtered_gr2 = counts_per_fam_2.sort_values(by=['date','stateProvince','species'], ascending=True)
+df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'sum', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
+df_filtered_gr2 = counts_per_fam_2.sort_values(by=['Year'], ascending=True)
 
 fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateProvince',
                     color=temp_per, hover_data=['stateProvince'],
@@ -198,7 +198,7 @@ fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateP
                     mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
                     title='Spider Biodiversity in Switzerland',
                     labels={"stateProvince":"Canton",
-                           "Temperature":temp_per},
+                           temp_per : temp_per},
                     color_discrete_sequence="RdBu")
 
 fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
