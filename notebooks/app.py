@@ -176,8 +176,10 @@ counts_per_fam_2['date'] = pd.to_datetime(counts_per_fam_2[['Year', 'Month']].as
 counts_per_fam_2 = counts_per_fam_2.sort_values('date', ascending=True)
 counts_per_fam_2['date'] = counts_per_fam_2['date'].dt.strftime('%m-%d-%Y')
 
-st.write('finished')
-fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateProvince',
+df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','date','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
+df_filtered_gr2 = counts_per_fam_2.sort_values(by=['data','stateProvince','species'], ascending=True)
+
+fig4 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
                     color='Temperature', hover_data=['stateProvince'],
                     animation_frame = 'date',
                     featureidkey="properties.kan_name",
@@ -190,7 +192,7 @@ fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateP
 
 fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
 st.write('finished')
-fig5 = px.scatter_mapbox(counts_per_fam_2, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
+fig5 = px.scatter_mapbox(df_filtered_gr2, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
                         color="occurrenceStatus", animation_frame = 'date',
                         color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
                         title='Spider Biodiversity in Switzerland',
