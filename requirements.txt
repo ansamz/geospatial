@@ -1,0 +1,8 @@
+matplotlib
+numpy
+pandas
+json
+plotly
+seaborn
+streamlit
+plotly==5.14.1
