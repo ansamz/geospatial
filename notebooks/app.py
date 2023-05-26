@@ -173,14 +173,18 @@ st.plotly_chart(fig3)
 # Temperature and Per and Spiders's number
 counts_per_fam_2 = counts_per_fam.copy(deep=True)
 
+st.markdown("<h4 style='text-align: center; color: black;'>Explore the effects of Temperature and Precipitation on the spider families previously selected</h4>", unsafe_allow_html=True)
+
 temp_per = "Temperature"
 temp_per = st.radio(
-    "Which efffect would you like to explore?",
+    "Which effect would you like to explore?",
     ("Temperature", "Precipitation"))
 
-years_slider = age = st.slider('Which years would you like to explore?', 1980, 2020, 1985)
+years_option = st.selectbox(
+    'In which year?',
+    counts_per_fam_2.Year.unique())
 
-counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] < years_slider]
+counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] == years_option]
 counts_per_fam_2['date'] = pd.to_datetime(counts_per_fam_2[['Year', 'Month']].assign(DAY=1))
 counts_per_fam_2 = counts_per_fam_2.sort_values('date', ascending=True)
 counts_per_fam_2['date'] = counts_per_fam_2['date'].dt.strftime('%m-%d-%Y')
