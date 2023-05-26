@@ -47,12 +47,22 @@ st.markdown("<h4 style='text-align: center; color: grey;'>Team members: Robin Po
 ###########################
 # Read Data and Cleaning
 
-data = pd.read_parquet('data/final_dataset.parquet')
+@st.cache_data
+def read_data(path):
+    df = pd.read_parquet(path)
+    return df
+
+@st.cache_data
+def read_json(path):
+    with open(path) as response:
+        result = json.load(response)
+    return result
+
+data = read_data('data/final_dataset.parquet')
 
 data = data.drop(columns = ['kingdom', 'class', 'Unnamed: 0', 'phylum', 'order', 'scientificName', 'verbatimScientificName', 'countryCode'])
 
-with open('data/georef-switzerland-kanton.geojson') as response:
-    regions = json.load(response)
+regions = read_json('data/georef-switzerland-kanton.geojson')
 
 data = data[data['Year'] >= 1980]
 
@@ -70,7 +80,7 @@ for canton in jura_Cantons:
     mapping[canton] = 'Jura'
 
 # Map the types to a new 'Type' column in the DataFrame
-data['landscape'] = data['stateProvince'].map(mapping)
+data['Landscape'] = data['stateProvince'].map(mapping)
 
 ##################
 # side bar
@@ -90,7 +100,7 @@ with st.sidebar:
 # Spiders biodiversity swiss cantons
 
 df_filtered_gr = data.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'count', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
-df_filtered_gr = data.sort_values(by=['Year','stateProvince','species'], ascending=True)
+df_filtered_gr = data.sort_values(by=['Year'], ascending=True)
 
 fig = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProvince',
                     color='occurrenceStatus', hover_data=['Temperature', 'Precipitation', 'stateProvince'],
@@ -104,18 +114,18 @@ fig = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProv
                     color_continuous_scale="Viridis")
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
 
-fig2 = px.scatter_mapbox(df_filtered_gr, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
-                        color="occurrenceStatus", animation_frame = 'Year',
-                        color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
-                        title='Spider Biodiversity in Switzerland',
-                        labels={"stateProvince":"Canton",
-                               "occurrenceStatus":"Number of spiders present"},
-                        center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
-                        mapbox_style="carto-positron")
+# fig2 = px.scatter_mapbox(df_filtered_gr, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
+#                         color="occurrenceStatus", animation_frame = 'Year',
+#                         color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
+#                         title='Spider Biodiversity in Switzerland',
+#                         labels={"stateProvince":"Canton",
+#                                "occurrenceStatus":"Number of spiders present"},
+#                         center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
+#                         mapbox_style="carto-positron")
 
-fig.add_trace(fig2.data[0])
-for i,frame in enumerate(fig.frames):
-    fig.frames[i].data += (fig2.frames[i].data[0],)
+# fig.add_trace(fig2.data[0])
+# for i,frame in enumerate(fig.frames):
+#     fig.frames[i].data += (fig2.frames[i].data[0],)
 
 st.plotly_chart(fig)
 
@@ -133,7 +143,7 @@ if agree:
         s += "- " + i + "\n"
     st.markdown(s)
 
-counts_per_fam = data_sub.groupby(['species', 'stateProvince', 'decimalLatitude', 'decimalLongitude', 'Year', 'Month']).agg({'occurrenceStatus':'size', 'Temperature': 'mean', 'Precipitation': 'mean'}).reset_index()
+counts_per_fam = data_sub.groupby(['species', 'stateProvince', 'decimalLatitude', 'decimalLongitude', 'Year', 'Month', 'Landscape']).agg({'occurrenceStatus':'size', 'Temperature': 'mean', 'Precipitation': 'mean'}).reset_index()
 
 
 fig3 = px.scatter_mapbox(
@@ -185,12 +195,13 @@ temp_per = st.radio(
 #     sorted(counts_per_fam_2.Year.unique()))
 
 #counts_per_fam_2 = counts_per_fam_2[counts_per_fam_2['Year'] == years_option]
+
 counts_per_fam_2 = counts_per_fam_2.sort_values('Year', ascending=True)
 
-df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude']).agg({'occurrenceStatus' : 'sum', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
+df_filtered_gr2 = counts_per_fam_2.groupby(['stateProvince', 'species','Year','decimalLatitude','decimalLongitude','Landscape']).agg({'occurrenceStatus' : 'sum', 'Temperature' : 'mean', 'Precipitation': 'mean'}).reset_index()
 df_filtered_gr2 = counts_per_fam_2.sort_values(by=['Year'], ascending=True)
 
-fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateProvince',
+fig4 = px.choropleth_mapbox(df_filtered_gr2, geojson=regions, locations='stateProvince',
                     color=temp_per, hover_data=['stateProvince'],
                     animation_frame = 'Month',
                     featureidkey="properties.kan_name",
@@ -203,9 +214,9 @@ fig4 = px.choropleth_mapbox(counts_per_fam_2, geojson=regions, locations='stateP
 
 fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
 
-fig5 = px.scatter_mapbox(counts_per_fam_2, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
+fig5 = px.scatter_mapbox(df_filtered_gr2, lat="decimalLatitude", lon="decimalLongitude", hover_name="species", hover_data=["occurrenceStatus", "Temperature", "Precipitation"],
                         color="occurrenceStatus", animation_frame = 'Month',
-                        color_continuous_scale=px.colors.sequential.Hot, size_max=15, zoom=7, width=1500, height=750,
+                        color_continuous_scale=px.colors.sequential.Viridis, size_max=15, zoom=7, width=1500, height=750,
                         title='Spider Biodiversity in Switzerland',
                         labels={"stateProvince":"Canton",
                                "occurrenceStatus":"Number of spiders present"},
@@ -217,3 +228,19 @@ for i,frame in enumerate(fig4.frames):
     fig4.frames[i].data += (fig5.frames[i].data[0],)
 
 st.plotly_chart(fig4)
+
+st.markdown("<h4 style='text-align: center; color: black;'>Explore the effects of Geographical Landscape on the spider families previously selected</h4>", unsafe_allow_html=True)
+
+fig6 = px.choropleth_mapbox(df_filtered_gr, geojson=regions, locations='stateProvince',
+                    color='Landscape', hover_data=['Temperature', 'Precipitation', 'stateProvince'],
+                    animation_frame = 'Year',
+                    featureidkey="properties.kan_name",
+                    center={"lat": 46.818, "lon": 8.2275}, #swiss longitude and latitude
+                    mapbox_style="carto-positron", zoom=7, opacity=0.8, width=1500, height=750,
+                    title='Spider Biodiversity in Switzerland',
+                    labels={"stateProvince":"Canton",
+                           "occurrenceStatus":"Number of spiders present"})
+
+fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, hoverlabel={"bgcolor":"white", "font_size":12, "font_family":"Sans"})
+
+st.plotly_chart(fig6)
