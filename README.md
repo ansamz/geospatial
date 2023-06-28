@@ -11,6 +11,16 @@ This paper aims to analyze the geospatial data of spider biodiversity in Switzer
 The map we aim to produce is intended to illustrate the distribution of spider species across Switzerland from 1896 to 2021. By spatially depicting the instances of spider species, we can visualize the evolving patterns of species composition throughout the nation. The map will integrate various layers, representing species richness, the presence of specific species, and average temperature data corresponding to different months, in line with the corresponding years. This will enable us to demonstrate changes in spider distribution in relation to temperature fluctuations over time, leading to the primary research question of our project:
 Has the composition of spider species in Switzerland changed between 1896 and 2021, and is there a correlation between the distribution of spider species and average temperature fluctuations?
 
+## Streamlit app
+Unfortunately it keeps crashing due to the size of the data. 
+In case you would like to run it on your local machine here are the steps:
+1. Clone the repository on your local machine.
+2. Create a python environment.
+3. Install the packages required by running this command
+      pip install -r requirements.txt
+4. Run the streamlit app using this command app.py should include the path to the file:
+      streamlit run app.py
+
 
 
 ### Methods Used
